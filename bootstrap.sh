@@ -87,7 +87,16 @@ cp "$INSTALL_DIR/systemd/skytracer-web.service" "$SYSTEMD_DIR/"
 
 echo "==> Enabling services"
 systemctl daemon-reload
-systemctl enable --now skytracer-poll.timer skytracer-web.service
+systemctl enable --now skytracer-poll.timer
+# `enable --now` only *starts* skytracer-web.service if it isn't already
+# running — on every re-run (the whole point of this script being
+# idempotent/upgradeable) it was already active, so "--now" was a no-op
+# and the running process kept executing whatever code was in memory from
+# before this sync, even though the files on disk were just updated.
+# `restart` starts it if stopped and restarts it if running, so an upgrade
+# actually takes effect either way.
+systemctl enable skytracer-web.service
+systemctl restart skytracer-web.service
 
 echo
 echo "==> Done."
