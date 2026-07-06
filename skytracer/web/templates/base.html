@@ -19,5 +19,21 @@
   {% block content %}{% endblock %}
 </main>
 <footer>Skytracer — self-hosted flight price tracker</footer>
+
+<script>
+  // Server renders UTC timestamps (it has no idea what timezone a visitor
+  // is in); this converts them to the browser's local time, minute
+  // precision, on every page — the one bit of always-on JS in an
+  // otherwise dependency-free app, because there's no server-side way to
+  // know the visitor's timezone without it.
+  document.querySelectorAll(".local-time[data-iso]").forEach(function (el) {
+    var date = new Date(el.dataset.iso);
+    if (isNaN(date.getTime())) return;
+    el.textContent = date.toLocaleString(undefined, {
+      dateStyle: "medium",
+      timeStyle: "short",
+    });
+  });
+</script>
 </body>
 </html>
